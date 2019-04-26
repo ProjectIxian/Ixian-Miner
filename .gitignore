@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/IxianMiner/.vs/IxianMiner/v15
+/IxianMiner/IxianMiner/bin
+/IxianMiner/IxianMiner/obj
+/IxianMiner/packages
+/IxianMiner/IxianMiner/IxianMiner.csproj.user
