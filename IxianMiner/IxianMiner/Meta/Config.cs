@@ -98,18 +98,28 @@ namespace IxianMiner
                 Console.WriteLine("Warning! Wallet address was specified, but pool mode is not enabled!");
             }
 
-            if(poolhost != null && wallet == null)
+            // Handle pool-mode configuration
+            if (poolhost != null)
             {
-                Console.WriteLine("Warning! Pool mode enabled, but no wallet address provided!");
-            }
+                // Set a default worker name if none provided
+                if (workername == null)
+                {
+                    Console.WriteLine("No workername provided, using default IxianMiner as the worker name.");
+                    workername = "IxianMiner";
+                }
 
-            // Set a default worker name if none provided
-            if(workername == null)
-            {
-                Console.WriteLine("No workername provided, using default IxianMiner as the worker name.");
-                workername = "IxianMiner";
-            }
+                if (wallet == null)
+                {
+                    Console.WriteLine("Warning! Pool mode enabled, but no wallet address provided!");
+                }
+                else
+                {
+                    // Set the pool host
+                    host = poolhost;
+                    Console.WriteLine("Selected POOL: {0}", host);
+                }
 
+            }
         }
 
     }
