@@ -12,7 +12,7 @@ namespace IxianMiner
 
         public static string host = "http://localhost:8081";
         public static string poolhost = null;
-        public static int threads = 4;
+        public static int threads = 0;  // 0 means automatically detect and apply maximum thread count
         public static string wallet = null;
         public static string workername = null;
 
@@ -33,7 +33,7 @@ namespace IxianMiner
             Console.WriteLine("");
             Console.WriteLine("    -h\t\t\t Displays this help");
             Console.WriteLine("    -v\t\t\t Displays version");
-            Console.WriteLine("    --threads\t\t Specify number of threads to use for mining (default 4)");
+            Console.WriteLine("    --threads\t\t Specify number of threads to use for mining. By default it auto-detects the maximum number of threads.");
             Console.WriteLine("    --node\t\t Specify a node hostname and disable pool mode (default http://localhost:8081)");
             Console.WriteLine("    --pool\t\t Specify a pool hostname and enable pool mode");
             Console.WriteLine("    --wallet\t\t Specify the mining wallet when in pool mode, required when pool mode is enabled");
@@ -91,7 +91,7 @@ namespace IxianMiner
 
             // Handle potential issues
             if (threads < 1)
-                threads = 1;
+                threads = 0; // Default back to autodetect
 
             if(poolhost == null && wallet != null)
             {

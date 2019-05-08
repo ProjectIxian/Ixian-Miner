@@ -63,6 +63,14 @@ namespace IxianMiner
             Thread webservice_thread = new Thread(webThreadLoop);
             webservice_thread.Start();
 
+            // Handle thread count autodetect
+            if(Config.threads == 0)
+            {
+                Config.threads = Miner.calculateMiningThreadsCount();
+            }
+
+            Console.WriteLine("Mining threads: {0}", Config.threads);
+
             // Start secondary miner threads
             for (int i = 0; i < Config.threads; i++)
             {
@@ -81,7 +89,21 @@ namespace IxianMiner
             return true;
         }
 
+        // Returns the allowed number of mining threads based on amount of logical processors detected
+        public static int calculateMiningThreadsCount()
+        {
+            int vcpus = Environment.ProcessorCount;
 
+            // Single logical processor detected, force one mining thread maximum
+            if (vcpus <= 1)
+            {
+                Console.WriteLine("Single logical processor detected, forcing one mining thread maximum.");
+                return 1;
+            }
+
+            // Provided mining thread count is allowed
+            return vcpus;
+        }
 
         // Output the miner status
         private void printMinerStatus()
