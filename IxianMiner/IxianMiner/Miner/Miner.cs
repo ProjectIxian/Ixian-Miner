@@ -249,6 +249,12 @@ namespace IxianMiner
 
                 dynamic resultdata = data["result"];
 
+                ulong num = resultdata["num"];
+                if(num != currentBlockNum)
+                {
+                    hasBlock = false;
+                }
+
                 string powfield = resultdata["PoW field"];
                 if(powfield.Length > 5)
                     hasBlock = false;
