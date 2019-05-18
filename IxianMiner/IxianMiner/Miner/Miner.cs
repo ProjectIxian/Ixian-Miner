@@ -210,28 +210,37 @@ namespace IxianMiner
                 if (poolMode)
                     suffix = string.Format("&wallet={0}&worker={1}&hr={2}", Config.wallet, Config.workername, lastHashrate);
                 var json = webClient.DownloadString(string.Format("{0}/getminingblock?algo=0{1}", Config.host, suffix));
-                dynamic data = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
+                try
+                {
+                    dynamic data = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
 
-                dynamic resultdata = data["result"];
+                    dynamic resultdata = data["result"];
 
-                ulong num = resultdata["num"];
-                int ver = resultdata["ver"];
-                ulong diff = resultdata["dif"];
-                byte[] block_checksum = resultdata["chk"];
-                byte[] solver_address = resultdata["adr"];
+                    ulong num = resultdata["num"];
+                    int ver = resultdata["ver"];
+                    ulong diff = resultdata["dif"];
+                    byte[] block_checksum = resultdata["chk"];
+                    byte[] solver_address = resultdata["adr"];
 
-                currentBlockNum = num;
-                currentBlockVersion = ver;
-                currentBlockDifficulty = diff;
+                    currentBlockNum = num;
+                    currentBlockVersion = ver;
+                    currentBlockDifficulty = diff;
 
-                Console.WriteLine("Received block: #{0} diff {1}", num, diff);
+                    Console.WriteLine("Received block: #{0} diff {1}", num, diff);
 
-                currentHashCeil = getHashCeilFromDifficulty(currentBlockDifficulty);
+                    currentHashCeil = getHashCeilFromDifficulty(currentBlockDifficulty);
 
-                activeBlockChallenge = new byte[block_checksum.Length + solver_address.Length];
-                System.Buffer.BlockCopy(block_checksum, 0, activeBlockChallenge, 0, block_checksum.Length);
-                System.Buffer.BlockCopy(solver_address, 0, activeBlockChallenge, block_checksum.Length, solver_address.Length);
-                hasBlock = true;
+                    activeBlockChallenge = new byte[block_checksum.Length + solver_address.Length];
+                    System.Buffer.BlockCopy(block_checksum, 0, activeBlockChallenge, 0, block_checksum.Length);
+                    System.Buffer.BlockCopy(solver_address, 0, activeBlockChallenge, block_checksum.Length, solver_address.Length);
+                    hasBlock = true;
+                }
+                catch(Exception)
+                {
+                    Thread.Sleep(1000);
+                    hasBlock = false;
+                }
+
             }
         }
 
@@ -253,6 +262,7 @@ namespace IxianMiner
                 if(num != currentBlockNum)
                 {
                     hasBlock = false;
+                    return;
                 }
 
                 string powfield = resultdata["PoW field"];
