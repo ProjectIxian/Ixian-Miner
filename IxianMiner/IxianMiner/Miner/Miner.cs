@@ -115,7 +115,6 @@ namespace IxianMiner
 
                 string time_prefix = DateTime.Now.ToString("HH:mm:ss");
                 Console.WriteLine("[{0}] Speed: {1} H/s\tBlock#:{2}\tDiff:{3}\tShares:{4}\tUptime: {5}", time_prefix, hashesPerSecond, currentBlockNum, currentBlockDifficulty, foundShares, totalTimeTaken.ToString(@"d\.hh\:mm\:ss"));
-                emptyPowBlockNotices = 0;
             }
             else
             {
