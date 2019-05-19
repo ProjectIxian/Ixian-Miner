@@ -115,9 +115,12 @@ namespace IxianMiner
 
                 string time_prefix = DateTime.Now.ToString("HH:mm:ss");
                 Console.WriteLine("[{0}] Speed: {1} H/s\tBlock#:{2}\tDiff:{3}\tShares:{4}\tUptime: {5}", time_prefix, hashesPerSecond, currentBlockNum, currentBlockDifficulty, foundShares, totalTimeTaken.ToString(@"d\.hh\:mm\:ss"));
+                emptyPowBlockNotices = 0;
             }
             else
+            {
                 Console.WriteLine("Waiting for empty PoW block...");
+            }
 
             lastStatTime = DateTime.UtcNow;
             lastHashrate = hashesPerSecond;
@@ -213,8 +216,14 @@ namespace IxianMiner
                 try
                 {
                     dynamic data = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
-
                     dynamic resultdata = data["result"];
+
+                    if (resultdata["num"] == null)
+                    {
+                        Thread.Sleep(1000);
+                        hasBlock = false;
+                        return;
+                    }
 
                     ulong num = resultdata["num"];
                     int ver = resultdata["ver"];
@@ -255,14 +264,16 @@ namespace IxianMiner
                 string final_url = string.Format("{0}/getblock?num={1}{2}", Config.host, currentBlockNum, suffix);
                 var json = webClient.DownloadString(final_url);
                 dynamic data = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
-
                 dynamic resultdata = data["result"];
 
-                ulong num = resultdata["num"];
-                if(num != currentBlockNum)
+                if (resultdata["num"] != null)
                 {
-                    hasBlock = false;
-                    return;
+                    ulong num = resultdata["num"];
+                    if (num != currentBlockNum)
+                    {
+                        hasBlock = false;
+                        return;
+                    }
                 }
 
                 string powfield = resultdata["PoW field"];
