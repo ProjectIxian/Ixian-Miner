@@ -177,7 +177,8 @@ namespace IxianMiner
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Exception: {0}", e.Message);
+                    Console.WriteLine("Thread Exception: {0}", e.Message);
+                    Thread.Sleep(1000);
                     break;
                 }
             }
@@ -187,17 +188,26 @@ namespace IxianMiner
         {
             while (!shouldStop)
             {
-                if (waitingForNewBlock)
+                try
                 {
-                    Thread.Sleep(500);
+                    if (waitingForNewBlock)
+                    {
+                        Thread.Sleep(500);
+                    }
+                    if (hasBlock == false)
+                    {
+                        Thread.Sleep(500);
+                    }
+                    else
+                    {
+                        calculatePow_v2(currentHashCeil);
+                    }
                 }
-                if (hasBlock == false)
+                catch (Exception e)
                 {
-                    Thread.Sleep(500);
-                }
-                else
-                {
-                    calculatePow_v2(currentHashCeil);
+                    Console.WriteLine("Miner Thread Exception: {0}", e.Message);
+                    Thread.Sleep(1000);
+                    break;
                 }
             }
         }
