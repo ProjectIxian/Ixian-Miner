@@ -150,7 +150,7 @@ namespace IxianMiner
                 catch(Exception e)
                 {
                     Console.WriteLine("Exception: {0}", e.Message);
-                    break;
+                    Thread.Sleep(5000);
                 }
             }
         }
@@ -178,8 +178,7 @@ namespace IxianMiner
                 catch (Exception e)
                 {
                     Console.WriteLine("Thread Exception: {0}", e.Message);
-                    Thread.Sleep(1000);
-                    break;
+                    Thread.Sleep(5000);
                 }
             }
         }
@@ -206,8 +205,7 @@ namespace IxianMiner
                 catch (Exception e)
                 {
                     Console.WriteLine("Miner Thread Exception: {0}", e.Message);
-                    Thread.Sleep(1000);
-                    break;
+                    Thread.Sleep(5000);
                 }
             }
         }
