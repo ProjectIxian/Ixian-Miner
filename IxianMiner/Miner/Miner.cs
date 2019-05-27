@@ -28,7 +28,7 @@ namespace IxianMiner
 
         private DateTime startTime;
 
-
+        int connectionFails = 0;
         bool waitingForNewBlock = false;
         bool hasBlock = false;
 
@@ -149,7 +149,7 @@ namespace IxianMiner
                 }
                 catch(Exception e)
                 {
-                    Console.WriteLine("Exception: {0}", e.Message);
+                    Console.WriteLine("Exception: {0}", e.Message);                  
                     Thread.Sleep(5000);
                 }
             }
@@ -178,6 +178,7 @@ namespace IxianMiner
                 catch (Exception e)
                 {
                     Console.WriteLine("Thread Exception: {0}", e.Message);
+                    checkFailover();
                     Thread.Sleep(5000);
                 }
             }
@@ -300,6 +301,31 @@ namespace IxianMiner
 
                 string final_url = string.Format("{0}/submitminingsolution?nonce={1}&blocknum={2}{3}", Config.host, hashToString(nonce), currentBlockNum, suffix);
                 var json = webClient.DownloadString(final_url);
+            }
+        }
+
+        // Checks and switches to the failover pool if necessary. Will also switch to primary pool in case the failover doesn't work.
+        private void checkFailover()
+        {
+            // Skip failover if no secondary pool is provided
+            if (Config.poolhost2 == null)
+                return;
+
+            connectionFails++;
+
+            if(connectionFails >= 3)
+            {
+                connectionFails = 0;
+                Console.Write("Switching active pool to: ");
+                if(Config.host.Equals(Config.poolhost))
+                {
+                    Config.host = Config.poolhost2;
+                }
+                else
+                {
+                    Config.host = Config.poolhost;
+                }
+                Console.WriteLine(Config.host);
             }
         }
 
