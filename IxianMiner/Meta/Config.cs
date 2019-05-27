@@ -11,7 +11,8 @@ namespace IxianMiner
     {
 
         public static string host = "http://localhost:8081";
-        public static string poolhost = null;
+        public static string poolhost = null; // Primary pool hostname
+        public static string poolhost2 = null; // Secondary pool hostname
         public static int threads = 0;  // 0 means automatically detect and apply maximum thread count
         public static string wallet = null;
         public static string workername = null;
@@ -36,6 +37,7 @@ namespace IxianMiner
             Console.WriteLine("    --threads\t\t Specify number of threads to use for mining. By default it auto-detects the maximum number of threads.");
             Console.WriteLine("    --node\t\t Specify a node hostname and disable pool mode (default http://localhost:8081)");
             Console.WriteLine("    --pool\t\t Specify a pool hostname and enable pool mode");
+            Console.WriteLine("    --pool2\t\t Specify a secondary pool hostname");
             Console.WriteLine("    --wallet\t\t Specify the mining wallet when in pool mode, required when pool mode is enabled");
             Console.WriteLine("    --worker\t\t Specify the worker name when in pool mode (default IxianMiner)");
             Console.WriteLine("");
@@ -81,6 +83,7 @@ namespace IxianMiner
 
             cmd_parser.Setup<string>("host").Callback(value => host = value).Required();
             cmd_parser.Setup<string>("pool").Callback(value => poolhost = value).Required();
+            cmd_parser.Setup<string>("pool2").Callback(value => poolhost2 = value).Required();
             cmd_parser.Setup<string>("node").Callback(value => host = value).Required();
             cmd_parser.Setup<int>("threads").Callback(value => threads = (int)value).Required();
             cmd_parser.Setup<string>("wallet").Callback(value => wallet = value).Required();
