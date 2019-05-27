@@ -1,5 +1,5 @@
 # Ixian-Miner
-Mining software for the Ixian cryptocurrency
+CPU mining software for the Ixian cryptocurrency with support for pools.
 
 ## Development branches
 
