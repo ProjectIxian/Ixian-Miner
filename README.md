@@ -28,9 +28,9 @@ The default Mono versions shipped with most common distributions are outdated.
 Go to the [Mono official website](https://www.mono-project.com/download/stable/#download-lin) and follow the steps for your Linux distribution.
 We recommend you install the **mono-complete** package.
 
-Open a terminal and navigate to the IxianMiner folder, then type
+Navigate to the IxianMiner Release folder and execute IxianDLT.exe under mono:
 ```
-IxianMiner.exe -h
+mono IxianMiner.exe -h
 ```
 to find out how to configure and run the IxianMiner.
 
