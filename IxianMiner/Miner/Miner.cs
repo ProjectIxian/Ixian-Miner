@@ -19,7 +19,7 @@ namespace IxianMiner
 
         public byte[] currentHashCeil { get; private set; }
         public ulong currentBlockNum = 0; // Mining block number
-        public int currentBlockVersion = 0;
+        public int currentBlockVersion = 5;
         public ulong currentBlockDifficulty = 0; // Current block difficulty
         byte[] activeBlockChallenge = null;
 
@@ -200,7 +200,10 @@ namespace IxianMiner
                     }
                     else
                     {
-                        calculatePow_v2(currentHashCeil);
+                        if (currentBlockVersion < 5)
+                            calculatePow_v2(currentHashCeil);
+                        else
+                            calculatePow_v3(currentHashCeil);
                     }
                 }
                 catch (Exception e)
@@ -329,6 +332,21 @@ namespace IxianMiner
             }
         }
 
+        // Expand a provided nonce up to expand_length bytes by appending a suffix of fixed-value bytes
+        private static byte[] expandNonce(byte[] nonce, int expand_length)
+        {
+            byte[] fullnonce = new byte[expand_length];
+            for (int i = 0; i < nonce.Length; i++)
+            {
+                fullnonce[i] = nonce[i];
+            }
+            for (int i = nonce.Length; i < fullnonce.Length; i++)
+            {
+                fullnonce[i] = 0x23;
+            }
+
+            return fullnonce;
+        }
 
         private void calculatePow_v2(byte[] hash_ceil)
         {           
@@ -356,6 +374,33 @@ namespace IxianMiner
             }
         }
 
+        private void calculatePow_v3(byte[] hash_ceil)
+        {
+            // PoW = Argon2id( BlockChecksum + SolverAddress, Nonce)
+            byte[] nonce_bytes = randomNonce(64);
+            byte[] fullnonce = expandNonce(nonce_bytes, 234236);
+
+            byte[] hash = findHash_v2(activeBlockChallenge, fullnonce);
+            if (hash.Length < 1)
+            {
+                Console.WriteLine("Stopping miner due to invalid hash.");
+                stop();
+                return;
+            }
+
+            hashesPerSecond++;
+
+            // We have a valid hash, update the corresponding block
+            if (Miner.validateHashInternal_v2(hash, hash_ceil) == true)
+            {
+                Console.WriteLine("SHARE FOUND FOR BLOCK {0}", currentBlockNum);
+
+                // Broadcast the nonce to the network
+                sendSolution(nonce_bytes);
+                hasBlock = false;
+                foundShares++;
+            }
+        }
 
         private static bool validateHashInternal_v2(byte[] hash, byte[] hash_ceil)
         {
@@ -399,6 +444,31 @@ namespace IxianMiner
             }
         }
 
+        private static byte[] findHash_v2(byte[] data, byte[] salt)
+        {
+            try
+            {
+                byte[] hash = new byte[32];
+                IntPtr data_ptr = Marshal.AllocHGlobal(data.Length);
+                IntPtr salt_ptr = Marshal.AllocHGlobal(salt.Length);
+                Marshal.Copy(data, 0, data_ptr, data.Length);
+                Marshal.Copy(salt, 0, salt_ptr, salt.Length);
+                UIntPtr data_len = (UIntPtr)data.Length;
+                UIntPtr salt_len = (UIntPtr)salt.Length;
+                IntPtr result_ptr = Marshal.AllocHGlobal(32);
+                int result = NativeMethods.argon2id_hash_raw((UInt32)2, (UInt32)2048, (UInt32)2, data_ptr, data_len, salt_ptr, salt_len, result_ptr, (UIntPtr)32);
+                Marshal.Copy(result_ptr, hash, 0, 32);
+                Marshal.FreeHGlobal(data_ptr);
+                Marshal.FreeHGlobal(result_ptr);
+                Marshal.FreeHGlobal(salt_ptr);
+                return hash;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(string.Format("Error during mining: {0}", e.Message));
+                return null;
+            }
+        }
 
         public static byte[] getHashCeilFromDifficulty(ulong difficulty)
         {
