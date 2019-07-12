@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace IxianMiner
 {
@@ -25,6 +22,8 @@ namespace IxianMiner
 
         private static Random random = new Random(); // Used to seed initial curNonce
         [ThreadStatic] private static byte[] curNonce = null; // Used for random nonce
+        [ThreadStatic] private static byte[] dummyExpandedNonce = null;
+        [ThreadStatic] private static int lastNonceLength = 0;
 
         private DateTime startTime;
 
@@ -335,17 +334,30 @@ namespace IxianMiner
         // Expand a provided nonce up to expand_length bytes by appending a suffix of fixed-value bytes
         private static byte[] expandNonce(byte[] nonce, int expand_length)
         {
-            byte[] fullnonce = new byte[expand_length];
-            for (int i = 0; i < nonce.Length; i++)
+            if (dummyExpandedNonce == null)
             {
-                fullnonce[i] = nonce[i];
-            }
-            for (int i = nonce.Length; i < fullnonce.Length; i++)
-            {
-                fullnonce[i] = 0x23;
+                dummyExpandedNonce = new byte[expand_length];
+                for (int i = 0; i < dummyExpandedNonce.Length; i++)
+                {
+                    dummyExpandedNonce[i] = 0x23;
+                }
             }
 
-            return fullnonce;
+            // set dummy with nonce
+            for (int i = 0; i < nonce.Length; i++)
+            {
+                dummyExpandedNonce[i] = nonce[i];
+            }
+
+            // clear any bytes from last nonce
+            for (int i = nonce.Length; i < lastNonceLength; i++)
+            {
+                dummyExpandedNonce[i] = 0x23;
+            }
+
+            lastNonceLength = nonce.Length;
+
+            return dummyExpandedNonce;
         }
 
         private void calculatePow_v2(byte[] hash_ceil)
