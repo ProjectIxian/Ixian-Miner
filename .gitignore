@@ -8,3 +8,4 @@
 /packages
 /IxianMiner/IxianMiner.csproj.user
 
+*.suo
