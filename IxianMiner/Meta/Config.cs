@@ -17,7 +17,7 @@ namespace IxianMiner
         public static string workername = null;
 
         // Read-only values
-        public static readonly string version = "0.7.0"; // Miner version
+        public static readonly string version = "0.9.1"; // Miner version
 
         private Config()
         {
